@@ -1,8 +1,9 @@
 import { Component,useEffect,useState} from 'react'
-import { View, Text,Button} from '@tarojs/components'
+import { View, Text,Button,Image} from '@tarojs/components'
 import Taro from '@tarojs/taro'
 // import './dialog.less'
 import './index.less'
+import yes from '../../img/good.png'
 // import Dialog from './Dialog'
 import QA from '../../components/QA'
 
@@ -22,44 +23,64 @@ function setStore(key,obj){
 }
 export const Index = ()=> {
   const [isShowQA,setShowQA]=useState(false)
-  const [quesAndText,setInput]=useState({title:'',text:''})
+  const [quesAndText,setInput]=useState({title:'',text:'',vote:0})
   const [quesList,setList] = useState(getStore("question")) //存储数据的空列表
-  const [isTrue,setTrue] = useState(false)
+  const [isTrue,setTrue] = useState(getStore("question").length==0?false:true)
   const changeShow =()=>{
     setShowQA(true)
     if(quesList==[]){
       setTrue(false)
     }
-    setInput({title:'',text:''})
+    //下一条评论的初始化
+    setInput({title:'',text:'',vote:0})
   }
-  // useEffect(()=>{
-  //   setTotalTxt([...totalTxt,quesAndText])
-  // },[totalTxt])
-  // componentWillMount () { }
 
-  // componentDidMount () { }
+  useEffect(()=>{
+    Taro.clearStorage()
+  },[])
 
-  // componentWillUnmount () { }
-
-  // //程序/页面，启动或切前台时触发；对应小程序的onShow
-  // componentDidShow () { }
-  
-  // //程序/页面，切后台或隐藏时触发；对应小程序的onHide
-  // componentDidHide () { }
+  const handleYes=(item)=>{
+    return ()=>{
+      console.log(item)
+      item.vote++;
+      console.log('更新前的列表',item)
+      //更新后的item.vote放进状态里,先map遍历找到对应id的那一项并修改
+      let newList = quesList.map((newitem)=>{
+        if(newitem.id === item.id){
+            newitem = {...item} //更新状态         
+          }
+        return newitem
+      })
+      //这里出问题，新的列表先前一个变为了undefined。原因是return写在了if里==
+      //更新quesList
+      setList(newList)
+      //更新setStore
+      setStore("question",newList)
+    }
+  }
     return (
       <View>
         <Text className='index'>问答展示模块</Text>
-      {isTrue?(quesList.map((item,index)=>{
-            // console.log('数组对象最终形式',quesList)
-            // console.log(item)
-          return(
-                <View className='showtxt'>
-                  <Text className='txt1'>{index+1}、你的问题是: {item['title']}</Text>
-                  <Text className='txt2'>你的描述是: {item['text']}</Text>
-                </View> 
-                 
-                )
-      })):null}
+      {isTrue?(
+            quesList.map((item,index)=>{
+            return(
+                  <View className='showtxt'>
+                    <View className='txt'>
+                      <Text className='txt1'>{index+1}、你的问题是: {item['title']}</Text>
+                      <Text className='txt2'>你的描述是: {item['text']}</Text>
+                    </View>
+
+                    <View className='imgT'>
+                      <Image src={yes} className='img' onClick={handleYes(item)}></Image>
+                      <Text className='vote'>{item.vote}</Text>
+                    </View>
+                  </View> 
+                   
+                  )
+                  })
+         
+        // </View>
+        ):<View className='default'><Text >快来提问吧！</Text></View>}
         {isShowQA?<QA setShowQA={setShowQA} 
                       setInput={setInput} 
                       quesAndText={quesAndText} 

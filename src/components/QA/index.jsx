@@ -5,7 +5,6 @@ import './index.less'
 import Dialog from '../../pages/index/Dialog'
 
 export const QA=(props)=>{
-    // const [quesAndText] = props
     const handleInput=(e)=>{
       props.setInput({...props.quesAndText,title:e.target.value})
       
@@ -25,11 +24,9 @@ export const QA=(props)=>{
           })
         }else{
           //将对象加入到数组中
-          // props.totalTxt.push(props.quesAndText)
-          props.quesList.push(props.quesAndText)//对象存进去
+          props.quesList.push({id:parseInt(Math.random()*10000),...props.quesAndText})//对象存进去
           props.setList(props.quesList)
           props.setStore("question",props.quesList)
-          // console.log('数组对象',props.quesList)
           props.setShowQA(false)
           props.setTrue(true)
         }
