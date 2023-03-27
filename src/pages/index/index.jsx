@@ -61,8 +61,10 @@ export const Index = ()=> {
     return (
       <View>
         <Text className='index'>问答展示模块</Text>
-      {isTrue?(
-            quesList.map((item,index)=>{
+      
+      {
+      isTrue?(  
+            quesList.sort((a,b)=>{return b.vote - a.vote}).map((item,index)=>{
             return(
                   <View className='showtxt'>
                     <View className='txt'>
